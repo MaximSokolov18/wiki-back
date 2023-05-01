@@ -5,10 +5,8 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-// конфігурація підключення до бази даних
 const pool = require('./db');
 
-// отримати всі статті
 app.get('/articles', async (req, res) => {
     try {
         const { rows } = await pool.query('SELECT * FROM article');
@@ -24,13 +22,25 @@ app.post('/articles', async (req, res) => {
     let topic_id, keyword_ids, article_id;
 
     try {
-        const { rows: topicRows } = await pool.query('INSERT INTO topic(name) VALUES($1) RETURNING id', [topic]);
-        topic_id = topicRows[0].id;
+        const { rows: existingTopicRows } = await pool.query('SELECT id FROM topic WHERE name = $1', [topic]);
+
+        if (existingTopicRows.length > 0) {
+            topic_id = existingTopicRows[0].id;
+        } else {
+            const { rows: newTopicRows } = await pool.query('INSERT INTO topic(name) VALUES($1) RETURNING id', [topic]);
+            topic_id = newTopicRows[0].id;
+        }
 
         keyword_ids = [];
         for (const keyword of keywords) {
-            const { rows: keywordRows } = await pool.query('INSERT INTO keyword(name, weight) VALUES($1, 0) RETURNING id', [keyword]);
-            keyword_ids.push(keywordRows[0].id);
+            const { rows: existingKeywordRows } = await pool.query('SELECT id FROM keyword WHERE name = $1', [keyword]);
+
+            if (existingKeywordRows.length > 0) {
+                keyword_ids.push(existingKeywordRows[0].id);
+            } else {
+                const { rows: newKeywordRows } = await pool.query('INSERT INTO keyword(name, weight) VALUES($1, 0) RETURNING id', [keyword]);
+                keyword_ids.push(newKeywordRows[0].id);
+            }
         }
 
         const { rows: articleRows } = await pool.query('INSERT INTO article(a_name, id_topic, content, link) VALUES($1, $2, $3, $4) RETURNING id', [a_name, topic_id, content, link]);
@@ -54,7 +64,7 @@ app.post('/articles', async (req, res) => {
         }
         res.status(500).send('Server Error');
     }
-}); 
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
