@@ -1,4 +1,4 @@
-# Launch project
+# Run project
 
 1. Add BD to your PC (file in telegram group)
 2. In db.js file change values for yourself
