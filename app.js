@@ -17,7 +17,7 @@ const pool = require('./db');
 
 app.get('/articles', async (req, res) => {
     try {
-        const { rows } = await pool.query('SELECT * FROM article');
+        const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link FROM article a JOIN topic t ON a.id_topic = t.id');
         res.json(rows);
     } catch (error) {
         console.error(error);
