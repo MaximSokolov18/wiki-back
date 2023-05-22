@@ -51,7 +51,6 @@ router.get('/search/:searchElement', async (req, res) => {
   try {
       const { searchElement } = req.params;
       const searchElements = searchElement.split(',').map(String);
-      console.log(searchElements);
       const query = `
       SELECT article.id, article.a_name, article.id_topic, article.content, article.link
       FROM article
