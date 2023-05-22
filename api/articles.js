@@ -47,5 +47,21 @@ router.get('/topic/:id_topic', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
-
+router.get('/search/:searchElement', async (req, res) => {
+  try {
+      const { searchElement } = req.params;
+      const searchElements = searchElement.split(',').map(String);
+      console.log(searchElements);
+      const query = `
+      SELECT article.id, article.a_name, article.id_topic, article.content, article.link
+      FROM article
+      WHERE article.content ~ ALL (ARRAY[${searchElements}]);
+                `;
+      const { rows } = await pool.query(query);
+      res.json(rows);
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Server Error');
+  }
+});
 module.exports = router;
