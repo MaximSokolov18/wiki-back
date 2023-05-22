@@ -15,9 +15,13 @@ app.use(setCorsHeaders);
 
 const pool = require('./db');
 
-app.get('/articles', async (req, res) => {
+const articlesRouter = require('./api/articles');
+
+app.use('/articles', articlesRouter);
+
+app.get('/allTopic', async (req, res) => {
     try {
-        const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link FROM article a JOIN topic t ON a.id_topic = t.id');
+        const { rows } = await pool.query('SELECT id, name FROM topic;');
         res.json(rows);
     } catch (error) {
         console.error(error);
@@ -25,6 +29,17 @@ app.get('/articles', async (req, res) => {
     }
 });
 
+app.get('/allKeyword', async (req, res) => {
+    try {
+        const { rows } = await pool.query('SELECT id, name, weight FROM keyword;');
+        res.json(rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server Error');
+    }
+});
+
+// Добавляє статтю
 app.post('/articles', async (req, res) => {
     const { a_name, topic, keywords, content, link } = req.body;
     let topic_id, keyword_ids, article_id;
