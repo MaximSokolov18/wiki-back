@@ -66,7 +66,16 @@ app.post('/articles', async (req, res) => {
             }
         }
 
-        const { rows: articleRows } = await pool.query('INSERT INTO article(a_name, id_topic, content, link) VALUES($1, $2, $3, $4) RETURNING id', [a_name, topic_id, content, link]);
+        const duplicateQuery = 'SELECT id FROM article WHERE a_name = $1';
+        const { rows: duplicateRows } = await pool.query(duplicateQuery, [a_name]);
+
+        if (duplicateRows.length > 0) {
+            res.status(400).send('Article with the same a_name already exists');
+            return;
+        }
+
+        const insertArticleQuery = 'INSERT INTO article(a_name, id_topic, content, link) VALUES($1, $2, $3, $4) RETURNING id';
+        const { rows: articleRows } = await pool.query(insertArticleQuery, [a_name, topic_id, content, link]);
         article_id = articleRows[0].id;
 
         for (const keyword_id of keyword_ids) {
