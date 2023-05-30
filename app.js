@@ -41,7 +41,7 @@ app.get('/allKeyword', async (req, res) => {
 
 // Добавляє статтю
 app.post('/articles', async (req, res) => {
-    const { a_name, topic, keywords, content, link } = req.body;
+    const { a_name, topic, keywords, content, link, img_url} = req.body;
     let topic_id, keyword_ids, article_id;
 
     try {
@@ -74,8 +74,8 @@ app.post('/articles', async (req, res) => {
             return;
         }
 
-        const insertArticleQuery = 'INSERT INTO article(a_name, id_topic, content, link) VALUES($1, $2, $3, $4) RETURNING id';
-        const { rows: articleRows } = await pool.query(insertArticleQuery, [a_name, topic_id, content, link]);
+        const insertArticleQuery = 'INSERT INTO article(a_name, id_topic, content, link, img_url) VALUES($1, $2, $3, $4, $5) RETURNING id';
+        const { rows: articleRows } = await pool.query(insertArticleQuery, [a_name, topic_id, content, link, img_url]);
         article_id = articleRows[0].id;
 
         for (const keyword_id of keyword_ids) {

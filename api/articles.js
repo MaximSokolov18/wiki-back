@@ -47,6 +47,7 @@ router.get('/topic/:id_topic', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 router.get('/search/:searchElement', async (req, res) => {
   try {
       const { searchElement } = req.params;
