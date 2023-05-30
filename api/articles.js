@@ -4,7 +4,7 @@ const pool = require('../db');
 
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link FROM article a JOIN topic t ON a.id_topic = t.id');
+    const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link, img_url FROM article a JOIN topic t ON a.id_topic = t.id');
     res.json(rows);
   } catch (error) {
     console.error(error);
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 router.get('/topic/:id_topic', async (req, res) => {
     try {
       const { id_topic } = req.params;
-      const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link FROM article a JOIN topic t ON a.id_topic = t.id WHERE a.id_topic = $1', [id_topic]);
+      const { rows } = await pool.query('SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link, img_url FROM article a JOIN topic t ON a.id_topic = t.id WHERE a.id_topic = $1', [id_topic]);
       res.json(rows);
     } catch (error) {
       console.error(error);
@@ -30,7 +30,7 @@ router.get('/topic/:id_topic', async (req, res) => {
         const { id_keyword } = req.params;
         const keywordIds = id_keyword.split(',').map(Number);
         const query = `
-            SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link
+            SELECT a.id, a.a_name, t.name name_topic, t.id id_topic, content, link, img_url
             FROM article a
             JOIN topic t ON a.id_topic = t.id
             JOIN (
