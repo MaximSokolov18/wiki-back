@@ -45,7 +45,7 @@ app.post('/articles', async (req, res) => {
     let topic_id, keyword_ids, article_id;
 
     try {
-        const { rows: existingTopicRows } = await pool.query('SELECT id FROM topic WHERE name = $1', [topic]);
+        const { rows: existingTopicRows } = await pool.query('SELECT id FROM topic WHERE name ILIKE $1', [topic]);
 
         if (existingTopicRows.length > 0) {
             topic_id = existingTopicRows[0].id;
@@ -55,8 +55,17 @@ app.post('/articles', async (req, res) => {
         }
 
         keyword_ids = [];
+        const { rows: existingKeywordRows } = await pool.query('SELECT id FROM keyword WHERE name ILIKE $1', [a_name]);
+
+        if (existingKeywordRows.length > 0) {
+            keyword_ids.push(existingKeywordRows[0].id);
+        } else {
+            const { rows: newKeywordRows } = await pool.query('INSERT INTO keyword(name, weight) VALUES($1, 0) RETURNING id', [a_name]);
+            keyword_ids.push(newKeywordRows[0].id);
+        }
+
         for (const keyword of keywords) {
-            const { rows: existingKeywordRows } = await pool.query('SELECT id FROM keyword WHERE name = $1', [keyword]);
+            const { rows: existingKeywordRows } = await pool.query('SELECT id FROM keyword WHERE name ILIKE  $1', [keyword]);
 
             if (existingKeywordRows.length > 0) {
                 keyword_ids.push(existingKeywordRows[0].id);
@@ -66,7 +75,7 @@ app.post('/articles', async (req, res) => {
             }
         }
 
-        const duplicateQuery = 'SELECT id FROM article WHERE a_name = $1';
+        const duplicateQuery = 'SELECT id FROM article WHERE a_name ILIKE $1';
         const { rows: duplicateRows } = await pool.query(duplicateQuery, [a_name]);
 
         if (duplicateRows.length > 0) {
@@ -81,8 +90,9 @@ app.post('/articles', async (req, res) => {
         for (const keyword_id of keyword_ids) {
             await pool.query('INSERT INTO article_keyword(id_article, id_keyword) VALUES($1, $2)', [article_id, keyword_id]);
         }
-
+        await pool.query('DELETE FROM public.article_keyword WHERE id NOT IN ( SELECT MIN(id) FROM public.article_keyword GROUP BY id_keyword, id_article);');
         res.status(200).send('Article added successfully');
+
     } catch (error) {
         console.error(error);
         if (topic_id) {
