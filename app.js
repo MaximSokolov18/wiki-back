@@ -32,7 +32,11 @@ app.get('/allTopic', async (req, res) => {
 app.get('/allKeyword', async (req, res) => {
     try {
         const { rows } = await pool.query('SELECT id, name, weight FROM keyword;');
-        res.json(rows);
+        const uniq = []
+        rows.forEach((row) => {
+            if (!uniq.find((u) => u.name === row.name)) uniq.push(row);
+        })
+        res.json(uniq);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');

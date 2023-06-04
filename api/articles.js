@@ -41,7 +41,8 @@ router.get('/topic/:id_topic', async (req, res) => {
             WHERE ARRAY[${keywordIds}] <@ ak.keyword_ids
         `;
         const { rows } = await pool.query(query);
-        res.json(rows);
+        const sorted = rows.sort((a, b) => a.a_name.localeCompare(b.a_name))
+        res.json(sorted);
     } catch (error) {
         console.error(error);
         res.status(500).send('Server Error');
