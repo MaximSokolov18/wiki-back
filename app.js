@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 const setCorsHeaders = (req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200'); // replace with the URL of your Angular app
+    res.setHeader('Access-Control-Allow-Origin', 'http://itwiki-4cb50.web.app'); // replace with the URL of your Angular app
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     next();
