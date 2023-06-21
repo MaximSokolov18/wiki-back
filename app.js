@@ -1,5 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
+const cors = require('cors');
+
 const app = express();
 
 const setCorsHeaders = (req, res, next) => {
@@ -12,6 +14,7 @@ const setCorsHeaders = (req, res, next) => {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(setCorsHeaders);
+app.use(cors())
 
 const pool = require('./db');
 
