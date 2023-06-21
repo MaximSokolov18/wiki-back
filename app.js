@@ -112,5 +112,23 @@ app.post('/articles', async (req, res) => {
     }
 });
 
+app.post('/deleteArticle', async (req, res) => {
+    try {
+      const { a_name } = req.body;
+      await pool.query(` DELETE FROM article_keyword WHERE id_article IN 
+      ( SELECT id FROM article WHERE a_name ILIKE $1 );`, [a_name]);
+
+      await pool.query(`DELETE FROM article WHERE a_name ILIKE $1;`, [a_name]);
+
+      await pool.query(`DELETE FROM public.keyword WHERE id NOT IN 
+      ( SELECT id_keyword FROM public.article_keyword );`);
+
+      res.status(200).send('Delete successfully');
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Delete Error');
+    }
+  });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
