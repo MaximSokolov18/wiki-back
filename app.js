@@ -126,7 +126,7 @@ app.post('/deleteArticle', async (req, res) => {
       await pool.query(`DELETE FROM public.keyword WHERE id NOT IN 
       ( SELECT id_keyword FROM public.article_keyword );`);
 
-      res.status(200).send('Delete successfully');
+      res.status(200).json({message: 'Delete successfully'});
     } catch (error) {
       console.error(error);
       res.status(500).send('Delete Error');
